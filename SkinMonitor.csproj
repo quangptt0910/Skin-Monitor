@@ -61,6 +61,7 @@
 
     <ItemGroup>
         <!-- Core MAUI -->
+        <PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="3.0.1" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.5" />
@@ -93,9 +94,6 @@
         <PackageReference Include="Microsoft.ML.ImageAnalytics" Version="3.0.1" />
         <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.20.1" />
         <PackageReference Include="Microsoft.ML.OnnxTransformer" Version="3.0.1" />
-
-        <!-- Camera -->
-        <PackageReference Include="Plugin.Maui.Camera" Version="1.0.2" />
 
         <!--        &lt;!&ndash; Azure Cognitive Services (Optional) &ndash;&gt;-->
         <!--        <PackageReference Include="Azure.AI.Vision.ImageAnalysis" Version="1.0.0-beta.3" />-->

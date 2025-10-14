@@ -1,14 +1,16 @@
-﻿namespace SkinMonitor;
+﻿using SkinMonitor.Services;
+
+namespace SkinMonitor;
 
 public partial class App : Application
 {
-    public App()
+    public App(IDatabaseService databaseService)
     {
         InitializeComponent();
-    }
-
-    protected override Window CreateWindow(IActivationState? activationState)
-    {
-        return new Window(new AppShell());
+        
+        // Initialize database
+        Task.Run(async () => await databaseService.InitializeAsync());
+        
+        MainPage = new AppShell();
     }
 }

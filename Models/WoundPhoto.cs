@@ -5,8 +5,8 @@ public class WoundPhoto
     public int Id { get; set; }
     public int WoundId { get; set; }
     public DateTime DateTaken { get; set; }
-    public string PhotoPath { get; set; }
-    public string ThumbnailPath { get; set; }
+    public string PhotoPath { get; set; } = string.Empty;
+    public string ThumbnailPath { get; set; } = string.Empty;
     
     // Measurements
     public double? WoundAreaCm2 { get; set; }

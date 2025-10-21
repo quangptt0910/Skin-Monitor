@@ -7,8 +7,10 @@ public partial class AppShell : Shell
     public AppShell()
     {
         InitializeComponent();
-        
-        // Register routes for navigation
+
+        // Register all navigation routes
+        Routing.RegisterRoute("HomePage", typeof(HomePage));
+        Routing.RegisterRoute("MainPage", typeof(MainPage));
         Routing.RegisterRoute("WoundDetail", typeof(WoundDetailPage));
         Routing.RegisterRoute("AddWound", typeof(AddWoundPage));
         Routing.RegisterRoute("PhotoCapture", typeof(PhotoCapturePage));

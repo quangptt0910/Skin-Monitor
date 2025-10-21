@@ -4,19 +4,38 @@ namespace SkinMonitor;
 
 public partial class MainPage : ContentPage
 {
-    public MainPage(WoundListViewModel viewModel)
+    private readonly MainPageViewModel _viewModel;
+    
+    public MainPage(MainPageViewModel viewModel)
     {
         InitializeComponent();
-        BindingContext = viewModel;
+        _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+        BindingContext = _viewModel;
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
         
-        if (BindingContext is WoundListViewModel viewModel)
+        try
         {
-            await viewModel.Initialize();
+            // Set current page in navigation
+            _viewModel.NavigationViewModel.UpdateCurrentPage("Main");
+            System.Diagnostics.Debug.WriteLine("MainPage appeared, set CurrentPage to Main");
+
+            await _viewModel.InitializeAsync();
         }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"Failed to load page: {ex.Message}", "OK");
+        }
+    }
+    
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        System.Diagnostics.Debug.WriteLine("MainPage disappeared");
+
+        _viewModel?.Dispose();
     }
 }

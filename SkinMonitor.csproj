@@ -20,6 +20,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
+        <MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
+
         <!-- Display name -->
         <ApplicationTitle>SkinMonitor</ApplicationTitle>
 
@@ -40,7 +42,8 @@
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
     </PropertyGroup>
-
+    
+    
     <ItemGroup>
         <!-- App Icon -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
@@ -61,7 +64,6 @@
 
     <ItemGroup>
         <!-- Core MAUI -->
-        <PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="3.0.1" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.5" />
@@ -75,11 +77,14 @@
         </PackageReference>
 
         <!-- MAUI Community Toolkit -->
-        <PackageReference Include="CommunityToolkit.Maui" Version="10.1.0" />
-        <PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="4.1.1" />
+        <PackageReference Include="CommunityToolkit.Maui" Version="11.0.0" />
+        <PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="4.1.1" /> 
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
 
-        <!-- Charts - Choose one or both -->
+        <PackageReference Include="Syncfusion.Maui.Toolkit" Version="1.0.5"/>
+
+
+        <!-- Charts -->
         <PackageReference Include="Syncfusion.Maui.Charts" Version="27.1.48" />
         <PackageReference Include="Microcharts.Maui" Version="1.0.0" />
 
@@ -94,14 +99,7 @@
         <PackageReference Include="Microsoft.ML.ImageAnalytics" Version="3.0.1" />
         <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.20.1" />
         <PackageReference Include="Microsoft.ML.OnnxTransformer" Version="3.0.1" />
-
-        <!--        &lt;!&ndash; Azure Cognitive Services (Optional) &ndash;&gt;-->
-        <!--        <PackageReference Include="Azure.AI.Vision.ImageAnalysis" Version="1.0.0-beta.3" />-->
-
-        <!--        &lt;!&ndash; OpenCV for advanced image processing (Optional) &ndash;&gt;-->
-        <!--        <PackageReference Include="OpenCvSharp4" Version="4.10.0.20241020" />-->
-        <!--        <PackageReference Include="OpenCvSharp4.runtime.uwp" Version="4.10.0.20241020" Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'" />-->
-        <!--    -->
     </ItemGroup>
+    
 
 </Project>

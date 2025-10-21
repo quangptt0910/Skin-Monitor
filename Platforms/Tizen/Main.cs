@@ -4,7 +4,7 @@ using Microsoft.Maui.Hosting;
 
 namespace SkinMonitor;
 
-class Program : MauiApplication
+class quangpProgram : MauiApplication
 {
     protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
 

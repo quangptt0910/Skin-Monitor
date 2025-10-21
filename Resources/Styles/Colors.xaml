@@ -34,7 +34,14 @@
     <Color x:Key="Danger">#F44336</Color>
     <Color x:Key="Error">#F44336</Color>
     <Color x:Key="Info">#2196F3</Color>
-    
+
+    <Color x:Key="PageBackground">#F5F5F5</Color>
+    <Color x:Key="CardBackground">White</Color>
+    <Color x:Key="TextPrimary">#212121</Color>
+    <Color x:Key="TextPrimaryDark">White</Color>
+    <Color x:Key="TextSecondary">#757575</Color>
+    <Color x:Key="TextSecondaryDark">#B0B0B0</Color>
+
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
     <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}"/>

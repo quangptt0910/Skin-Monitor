@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using SkiaSharp;
 using SkinMonitor.Models;
 using SkinMonitor.Data;
-using SkinMonitor.Models;
 
 namespace SkinMonitor.Services;
 

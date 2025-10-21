@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SkinMonitor.Views.PhotoCapturePage"
+             Title="Capture Photo"
+             BackgroundColor="#F5F5F5">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="25" Spacing="10">
+
+            <!-- Title -->
+            <Label Text="Capture Wound Photo"
+                   FontSize="32"
+                   FontAttributes="Bold"
+                   TextColor="#212121"
+                   HorizontalOptions="Center"
+                   Margin="0,20,0,20" />
+
+            <!-- Instructions Card -->
+            <Border BackgroundColor="White"
+                    Padding="20"
+                    Margin="0,10"
+                    StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="15" />
+                </Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.15" Radius="8" Offset="0,2" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="📸 Photo Guidelines"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#212121" />
+
+                    <Label Text="For best results, please:"
+                           FontSize="14"
+                           TextColor="#757575" />
+
+                    <VerticalStackLayout Spacing="5" Margin="10,5,0,0">
+                        <Label Text="• Ensure good lighting" FontSize="14" TextColor="#212121" />
+                        <Label Text="• Keep camera steady" FontSize="14" TextColor="#212121" />
+                        <Label Text="• Position wound clearly in center" FontSize="14" TextColor="#212121" />
+                        <Label Text="• Use same distance for consistency" FontSize="14" TextColor="#212121" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Photo Preview Card -->
+            <Border BackgroundColor="White"
+                    Padding="20"
+                    Margin="0,10"
+                    StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="15" />
+                </Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.15" Radius="8" Offset="0,2" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Preview"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#212121"
+                           HorizontalOptions="Center" />
+
+                    <!-- Photo Preview -->
+                    <Border BackgroundColor="#E0E0E0"
+                            HeightRequest="300"
+                            WidthRequest="300"
+                            HorizontalOptions="Center"
+                            StrokeThickness="2"
+                            Stroke="#BDBDBD">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="10" />
+                        </Border.StrokeShape>
+
+                        <Image x:Name="PreviewImage"
+                               Aspect="AspectFit" />
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Action Buttons -->
+
+            <!-- Capture Photo Button -->
+            <Button Text="📸 Take Photo"
+                    BackgroundColor="#4CAF50"
+                    TextColor="White"
+                    CornerRadius="10"
+                    Padding="20,15"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    Margin="0,20,0,10"
+                    Clicked="OnCaptureClicked" />
+
+            <!-- Choose from Gallery Button -->
+            <Button Text="🖼️ Choose from Gallery"
+                    BackgroundColor="#2196F3"
+                    TextColor="White"
+                    CornerRadius="10"
+                    Padding="20,15"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    Margin="0,10"
+                    Clicked="OnSelectClicked" />
+
+            <!-- Back Button -->
+            <Button Text="← Back"
+                    BackgroundColor="Transparent"
+                    TextColor="#512BD4"
+                    BorderColor="#512BD4"
+                    BorderWidth="2"
+                    CornerRadius="10"
+                    Padding="20,12"
+                    FontSize="16"
+                    Margin="0,10"
+                    Clicked="OnBackClicked" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

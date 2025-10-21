@@ -87,7 +87,7 @@ public class WoundDetailViewModel : BaseViewModel
     {
         if (SelectedWound == null) return;
 
-        var route = $"//PhotoCapture?woundId={SelectedWound.Id}";
+        var route = $"PhotoCapture?woundId={SelectedWound.Id}";
         await Shell.Current.GoToAsync(route);
     }
 
@@ -119,7 +119,7 @@ public class WoundDetailViewModel : BaseViewModel
     {
         if (SelectedWound == null) return;
 
-        var route = $"//Analysis?woundId={SelectedWound.Id}";
+        var route = $"Analysis?woundId={SelectedWound.Id}";
         await Shell.Current.GoToAsync(route);
     }
 
@@ -127,7 +127,7 @@ public class WoundDetailViewModel : BaseViewModel
     {
         if (SelectedWound == null) return;
 
-        var route = $"//EditWound?woundId={SelectedWound.Id}";
+        var route = $"EditWound?woundId={SelectedWound.Id}";
         await Shell.Current.GoToAsync(route);
     }
 }

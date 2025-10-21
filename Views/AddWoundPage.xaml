@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:SkinMonitor.ViewModels"
+             x:Class="SkinMonitor.Views.AddWoundPage"
+             Title="Add Wound"
+             BackgroundColor="#F5F5F5">
+       
+    <ScrollView>
+        <VerticalStackLayout Padding="25" Spacing="5">
+            
+            <!-- Title -->
+            <Label Text="Add New Wound"
+                   FontSize="32"
+                   FontAttributes="Bold"
+                   TextColor="#212121"
+                   HorizontalOptions="Center"
+                   Margin="0,20,0,30" />
+
+            <!-- Wound Name Section -->
+            <Label Text="Wound Name *"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="#212121"
+                   Margin="0,0,0,5" />
+            
+            <Entry x:Name="WoundNameEntry"
+                   Text="{Binding WoundName, Mode=TwoWay}"
+                   Placeholder="e.g., Knee Scrape, Surgery Incision"
+                   TextColor="Black"
+                   PlaceholderColor="#757575"
+                   BackgroundColor="White"
+                   FontSize="16"
+                   HeightRequest="50" />
+
+            <!-- Body Location Section -->
+            <Label Text="Body Location *"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="#212121"
+                   Margin="0,15,0,5" />
+            
+            <Entry x:Name="BodyLocationEntry"
+                   Text="{Binding BodyLocation, Mode=TwoWay}"
+                   Placeholder="e.g., Left Knee, Right Arm"
+                   TextColor="Black"
+                   PlaceholderColor="#757575"
+                   BackgroundColor="White"
+                   FontSize="16"
+                   HeightRequest="50" />
+
+            <!-- Wound Type Section -->
+            <Label Text="Wound Type *"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="#212121"
+                   Margin="0,15,0,5" />
+            
+            <Picker Title="Select Type"
+                    ItemsSource="{Binding WoundTypes}"
+                    SelectedItem="{Binding SelectedWoundType}"
+                    TextColor="Black"
+                    BackgroundColor="White"
+                    FontSize="16"
+                    HeightRequest="50">
+            </Picker>
+
+            <!-- Notes Section -->
+            <Label Text="Notes (Optional)"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="#212121"
+                   Margin="0,15,0,5" />
+            
+            <Editor x:Name="NotesEditor"
+                    Placeholder="Add any additional details..."
+                    TextColor="Black"
+                    PlaceholderColor="#757575"
+                    BackgroundColor="White"
+                    FontSize="16"
+                    HeightRequest="50" />
+
+            <!-- Photo Section -->
+            <Label Text="Initial Photo (Optional)"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="#212121"
+                   Margin="0,15,0,10" />
+
+            <Button Text="Pick Photo from Gallery" Command="{Binding PickPhotoCommand}" />
+
+            <Image x:Name="PhotoPreview"
+                   HeightRequest="200"
+                   WidthRequest="200"
+                   Aspect="AspectFit"
+                   BackgroundColor="#E0E0E0"
+                   HorizontalOptions="Center"
+                   IsVisible="False" />
+            
+            <Button x:Name="CapturePhotoButton"
+                    Text="📸 Take Photo"
+                    BackgroundColor="#2196F3"
+                    TextColor="White"
+                    CornerRadius="8"
+                    Padding="20,12"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    Command="{Binding CapturePhotoCommand}" />
+
+            <!-- Save Button -->
+            <Button Text="💾 Save Wound"
+                    BackgroundColor="#4CAF50"
+                    TextColor="White"
+                    CornerRadius="10"
+                    Padding="20,15"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    Margin="0,30,0,10"
+                    Command="{Binding SaveWoundCommand}" />
+
+            <!-- Cancel Button -->
+            <Button Text="Cancel"
+                    BackgroundColor="Transparent"
+                    TextColor="#512BD4"
+                    BorderColor="#512BD4"
+                    BorderWidth="2"
+                    CornerRadius="10"
+                    Padding="20,12"
+                    FontSize="16"
+                    Command="{Binding CancelCommand}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

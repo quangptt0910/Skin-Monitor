@@ -8,4 +8,7 @@ public class WoundAnalysisResult
     public DateTime AnalysisDate { get; set; }
     public double ConfidenceScore { get; set; }
     public string? ErrorMessage { get; set; }
+    
+    public HealingPrediction HealingPrediction { get; set; }
+    public string HealingProgress => HealingPrediction?.TrendAnalysis ?? "N/A";
 }

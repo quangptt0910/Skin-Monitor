@@ -10,9 +10,7 @@ public class WoundDbContext : DbContext
     public DbSet<WoundPhoto> WoundPhotos { get; set; }
     public DbSet<HealingStageLog> HealingLogs { get; set; }
 
-    public WoundDbContext()
-    {
-    }
+    public WoundDbContext() { }
 
     public WoundDbContext(DbContextOptions<WoundDbContext> options) : base(options)
     {
@@ -71,17 +69,17 @@ public class WoundDbContext : DbContext
         });
 
         // Seed data for development
-        modelBuilder.Entity<Wound>().HasData(
-            new Wound
-            {
-                Id = 1,
-                Name = "Sample Surgical Incision",
-                BodyLocation = "Right Abdomen",
-                Type = WoundType.Surgical,
-                DateCreated = DateTime.Now.AddDays(-7),
-                IsActive = true,
-                Notes = "Post-operative wound from appendectomy"
-            }
-        );
+        // modelBuilder.Entity<Wound>().HasData(
+        //     new Wound
+        //     {
+        //         Id = 1,
+        //         Name = "Sample Surgical Incision",
+        //         BodyLocation = "Right Abdomen",
+        //         Type = WoundType.Surgical,
+        //         DateCreated = DateTime.Now.AddDays(-7),
+        //         IsActive = true,
+        //         Notes = "Post-operative wound from appendectomy"
+        //     }
+        // );
     }
 }

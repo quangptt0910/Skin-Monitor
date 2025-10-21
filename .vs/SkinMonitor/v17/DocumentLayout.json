@@ -1,0 +1,312 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Quang\\Work\\.NET\\SkinMonitor\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|c:\\quang\\work\\.net\\skinmonitor\\views\\addwoundpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|solutionrelative:views\\addwoundpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|c:\\quang\\work\\.net\\skinmonitor\\views\\addwoundpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|solutionrelative:views\\addwoundpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|c:\\quang\\work\\.net\\skinmonitor\\views\\wounddetailpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|solutionrelative:views\\wounddetailpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|c:\\quang\\work\\.net\\skinmonitor\\views\\photocapturepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|solutionrelative:views\\photocapturepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|c:\\quang\\work\\.net\\skinmonitor\\views\\homepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|solutionrelative:views\\homepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|c:\\quang\\work\\.net\\skinmonitor\\mauiprogram.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|solutionrelative:mauiprogram.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|c:\\quang\\work\\.net\\skinmonitor\\appshell.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|solutionrelative:appshell.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|c:\\quang\\work\\.net\\skinmonitor\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|solutionrelative:app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|c:\\quang\\work\\.net\\skinmonitor\\views\\analysispage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|solutionrelative:views\\analysispage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|c:\\quang\\work\\.net\\skinmonitor\\mainpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|solutionrelative:mainpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|c:\\quang\\work\\.net\\skinmonitor\\views\\wounddetailpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|solutionrelative:views\\wounddetailpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|c:\\quang\\work\\.net\\skinmonitor\\services\\woundrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|solutionrelative:services\\woundrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|c:\\quang\\work\\.net\\skinmonitor\\views\\photocapturepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|solutionrelative:views\\photocapturepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|c:\\quang\\work\\.net\\skinmonitor\\views\\analysispage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|solutionrelative:views\\analysispage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|c:\\quang\\work\\.net\\skinmonitor\\helpers\\appcolors.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|solutionrelative:helpers\\appcolors.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|c:\\quang\\work\\.net\\skinmonitor\\appshell.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|solutionrelative:appshell.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|c:\\quang\\work\\.net\\skinmonitor\\mainpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B8F99514-B4CA-46B2-90B4-3560E86A3A1B}|SkinMonitor.csproj|solutionrelative:mainpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 241,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "PhotoCapturePage.xaml.cs",
+              "DocumentMoniker": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\PhotoCapturePage.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\PhotoCapturePage.xaml.cs",
+              "ToolTip": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\PhotoCapturePage.xaml.cs",
+              "RelativeToolTip": "Views\\PhotoCapturePage.xaml.cs",
+              "ViewState": "AgIAAAcAAAAAAAAAAIA3wBgAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-19T13:16:19.132Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AddWoundPage.xaml",
+              "DocumentMoniker": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\AddWoundPage.xaml",
+              "RelativeDocumentMoniker": "Views\\AddWoundPage.xaml",
+              "ToolTip": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\AddWoundPage.xaml",
+              "RelativeToolTip": "Views\\AddWoundPage.xaml",
+              "ViewState": "AgIAAGkAAAAAAAAAAAAQwIkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-10-19T11:34:11.165Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "WoundDetailPage.xaml",
+              "DocumentMoniker": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\WoundDetailPage.xaml",
+              "RelativeDocumentMoniker": "Views\\WoundDetailPage.xaml",
+              "ToolTip": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\WoundDetailPage.xaml",
+              "RelativeToolTip": "Views\\WoundDetailPage.xaml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-10-19T13:11:45.607Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AddWoundPage.xaml.cs",
+              "DocumentMoniker": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\AddWoundPage.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\AddWoundPage.xaml.cs",
+              "ToolTip": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\AddWoundPage.xaml.cs",
+              "RelativeToolTip": "Views\\AddWoundPage.xaml.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAQwA4AAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-19T11:34:29.952Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "HomePage.xaml.cs",
+              "DocumentMoniker": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\HomePage.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\HomePage.xaml.cs",
+              "ToolTip": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\HomePage.xaml.cs",
+              "RelativeToolTip": "Views\\HomePage.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-19T14:29:52.851Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "MauiProgram.cs",
+              "DocumentMoniker": "C:\\Quang\\Work\\.NET\\SkinMonitor\\MauiProgram.cs",
+              "RelativeDocumentMoniker": "MauiProgram.cs",
+              "ToolTip": "C:\\Quang\\Work\\.NET\\SkinMonitor\\MauiProgram.cs",
+              "RelativeToolTip": "MauiProgram.cs",
+              "ViewState": "AgIAABwAAAAAAAAAAAAlwC0AAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-19T14:29:50.618Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "App.xaml.cs",
+              "DocumentMoniker": "C:\\Quang\\Work\\.NET\\SkinMonitor\\App.xaml.cs",
+              "RelativeDocumentMoniker": "App.xaml.cs",
+              "ToolTip": "C:\\Quang\\Work\\.NET\\SkinMonitor\\App.xaml.cs",
+              "RelativeToolTip": "App.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-19T14:29:44.574Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "WoundRepository.cs",
+              "DocumentMoniker": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Services\\WoundRepository.cs",
+              "RelativeDocumentMoniker": "Services\\WoundRepository.cs",
+              "ToolTip": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Services\\WoundRepository.cs",
+              "RelativeToolTip": "Services\\WoundRepository.cs",
+              "ViewState": "AgIAAEMAAAAAAAAAAAAkwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-19T11:35:34.403Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "AnalysisPage.xaml",
+              "DocumentMoniker": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\AnalysisPage.xaml",
+              "RelativeDocumentMoniker": "Views\\AnalysisPage.xaml",
+              "ToolTip": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\AnalysisPage.xaml",
+              "RelativeToolTip": "Views\\AnalysisPage.xaml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-10-19T13:15:24.398Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "AppShell.xaml.cs",
+              "DocumentMoniker": "C:\\Quang\\Work\\.NET\\SkinMonitor\\AppShell.xaml.cs",
+              "RelativeDocumentMoniker": "AppShell.xaml.cs",
+              "ToolTip": "C:\\Quang\\Work\\.NET\\SkinMonitor\\AppShell.xaml.cs",
+              "RelativeToolTip": "AppShell.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-19T11:15:56.345Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "WoundDetailPage.xaml.cs",
+              "DocumentMoniker": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\WoundDetailPage.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\WoundDetailPage.xaml.cs",
+              "ToolTip": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\WoundDetailPage.xaml.cs",
+              "RelativeToolTip": "Views\\WoundDetailPage.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-19T13:12:03.52Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "PhotoCapturePage.xaml",
+              "DocumentMoniker": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\PhotoCapturePage.xaml",
+              "RelativeDocumentMoniker": "Views\\PhotoCapturePage.xaml",
+              "ToolTip": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\PhotoCapturePage.xaml",
+              "RelativeToolTip": "Views\\PhotoCapturePage.xaml",
+              "ViewState": "AgIAAGQAAAAAAAAAAAAiwH0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-10-19T13:16:01.312Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "AnalysisPage.xaml.cs",
+              "DocumentMoniker": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\AnalysisPage.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\AnalysisPage.xaml.cs",
+              "ToolTip": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Views\\AnalysisPage.xaml.cs",
+              "RelativeToolTip": "Views\\AnalysisPage.xaml.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAA4wB4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-19T13:15:36.911Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "AppColors.cs",
+              "DocumentMoniker": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Helpers\\AppColors.cs",
+              "RelativeDocumentMoniker": "Helpers\\AppColors.cs",
+              "ToolTip": "C:\\Quang\\Work\\.NET\\SkinMonitor\\Helpers\\AppColors.cs",
+              "RelativeToolTip": "Helpers\\AppColors.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-19T11:21:21.98Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "AppShell.xaml",
+              "DocumentMoniker": "C:\\Quang\\Work\\.NET\\SkinMonitor\\AppShell.xaml",
+              "RelativeDocumentMoniker": "AppShell.xaml",
+              "ToolTip": "C:\\Quang\\Work\\.NET\\SkinMonitor\\AppShell.xaml",
+              "RelativeToolTip": "AppShell.xaml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-10-19T11:16:10.985Z"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{40ea2e6b-2121-4bb8-a43e-c83c04b51041}"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 159,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "MainPage.xaml",
+              "DocumentMoniker": "C:\\Quang\\Work\\.NET\\SkinMonitor\\MainPage.xaml",
+              "RelativeDocumentMoniker": "MainPage.xaml",
+              "ToolTip": "C:\\Quang\\Work\\.NET\\SkinMonitor\\MainPage.xaml",
+              "RelativeToolTip": "MainPage.xaml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-10-19T09:58:05.147Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "MainPage.xaml.cs",
+              "DocumentMoniker": "C:\\Quang\\Work\\.NET\\SkinMonitor\\MainPage.xaml.cs",
+              "RelativeDocumentMoniker": "MainPage.xaml.cs",
+              "ToolTip": "C:\\Quang\\Work\\.NET\\SkinMonitor\\MainPage.xaml.cs",
+              "RelativeToolTip": "MainPage.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-19T11:07:13.912Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -60,6 +60,12 @@ namespace SkinMonitor.Services
                 if (classificationModelPath != null)
                 {
                     _classificationSession = new InferenceSession(classificationModelPath);
+                    
+                    // Log model input metadata for debugging
+                    var inputMeta = _classificationSession.InputMetadata.First();
+                    Debug.WriteLine($"[AIAnalysisService] Model input name: {inputMeta.Key}");
+                    Debug.WriteLine($"[AIAnalysisService] Model input shape: [{string.Join(", ", inputMeta.Value.Dimensions)}]");
+                    Debug.WriteLine($"[AIAnalysisService] Model input type: {inputMeta.Value.ElementDataType}");
                 }
 
                 // var segmentationModelPath = await GetModelPathFromBundleAsync("unet_wound_segmentation.onnx");
@@ -71,12 +77,12 @@ namespace SkinMonitor.Services
 
                 _isInitialized = _classificationSession != null;
                 //&& _segmentationSession != null;
-                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Model initialized!");
+                Debug.WriteLine($"[AIAnalysisService] Model initialized!");
 
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Model initialization failed: {ex.Message}");
+                Debug.WriteLine($"[AIAnalysisService] Model initialization failed: {ex.Message}");
                 _isInitialized = false;
             }
         }
@@ -111,7 +117,7 @@ namespace SkinMonitor.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Analysis failed: {ex.Message}");
+                Debug.WriteLine($"[AIAnalysisService] Analysis failed: {ex.Message}");
                 return GetFallbackAnalysis(ex.Message);
             }
         }
@@ -140,7 +146,7 @@ namespace SkinMonitor.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Classification failed: {ex.Message}\n{ex.StackTrace}");
+                Debug.WriteLine($"[AIAnalysisService] Classification failed: {ex.Message}\n{ex.StackTrace}");
                 return GetFallbackClassification(ex.Message);
             }
         }
@@ -157,7 +163,7 @@ namespace SkinMonitor.Services
             }
             catch (Exception ex)
             {
-                 System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Area calculation from path failed: {ex.Message}");
+                 Debug.WriteLine($"[AIAnalysisService] Area calculation from path failed: {ex.Message}");
                 return 0.0;
             }
         }
@@ -210,19 +216,32 @@ namespace SkinMonitor.Services
             
             try
             {
+                // Check the model's expected input dimensions
+                var inputMeta = _classificationSession.InputMetadata.First();
+                var expectedDims = inputMeta.Value.Dimensions.ToArray();
+                
+                Debug.WriteLine($"[AIAnalysisService] Expected input shape: [{string.Join(", ", expectedDims)}]");
+                
+                // Create tensor with shape matching model expectations
+                // Most ONNX models from Keras use NHWC (batch, height, width, channels)
                 var inputTensor = new DenseTensor<float>(imageData, new[] { 1, 299, 299, 3 });
+                
+                Debug.WriteLine($"[AIAnalysisService] Input tensor shape: [1, 299, 299, 3]");
+                Debug.WriteLine($"[AIAnalysisService] Input data length: {imageData.Length}");
+                
                 var inputs = new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor(_classificationSession.InputNames[0], inputTensor) };
 
                 using var outputs = _classificationSession.Run(inputs);
                 var outputTensor = outputs.First().AsTensor<float>();
+                var rawOutput = outputTensor.ToArray();
                 
+                Debug.WriteLine($"[AIAnalysisService] Model output length: {rawOutput.Length}");
+                Debug.WriteLine($"[AIAnalysisService] Raw model output: [{string.Join(", ", rawOutput.Select(x => x.ToString("F4")))}]");
                 
+                // Model already outputs probabilities (has softmax in final layer), don't apply again
+                var probabilities = rawOutput;
                 
-                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Model output length: {outputTensor.Length}");
-                
-                var probabilities = Softmax(outputTensor.ToArray());
-                
-                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Probabilities length: {probabilities.Length}");
+                Debug.WriteLine($"[AIAnalysisService] Probabilities length: {probabilities.Length}");
 
                 var maxProbability = probabilities.Max();
                 var maxIndex = Array.IndexOf(probabilities, maxProbability);
@@ -234,15 +253,15 @@ namespace SkinMonitor.Services
 
                 if (maxIndex < 0 || maxIndex >= woundTypes.Length)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Invalid class index {maxIndex}, max valid index is {woundTypes.Length - 1}");
+                    Debug.WriteLine($"[AIAnalysisService] Invalid class index {maxIndex}, max valid index is {woundTypes.Length - 1}");
                     return GetFallbackClassification($"Invalid class index {maxIndex}");
                 }
                 
-                System.Diagnostics.Debug.WriteLine("[AIAnalysisService] Prediction probabilities:");
+                Debug.WriteLine("[AIAnalysisService] Prediction probabilities:");
                 for (int i = 0; i < probabilities.Length; i++)
                 {
                     var label = Enum.GetName(typeof(WoundType), i);
-                    System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] {label}: {probabilities[i]:P2}");
+                    Debug.WriteLine($"[AIAnalysisService] {label}: {probabilities[i]:P2}");
                 }
                 
                 return new WoundClassification
@@ -257,7 +276,7 @@ namespace SkinMonitor.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Classification failed: {ex.Message}");
+                Debug.WriteLine($"[AIAnalysisService] Classification failed: {ex.Message}");
                 return GetFallbackClassification(ex.Message);
             }
         }
@@ -286,7 +305,7 @@ namespace SkinMonitor.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Segmentation failed: {ex.Message}");
+                Debug.WriteLine($"[AIAnalysisService] Segmentation failed: {ex.Message}");
                 return await EstimateAreaSimple(imageData);
             }
         }
@@ -333,16 +352,18 @@ namespace SkinMonitor.Services
 
         private float[] PreprocessImage(Image<Rgb24> image, int width = 299, int height = 299)
         {
-            // These are subtracted in order: R, G, B
-            const float MeanR = 123.68f;
-            const float MeanG = 116.779f;
-            const float MeanB = 103.939f;
+            // ResNet50 preprocessing with Caffe mode:
+            // - Convert RGB to BGR (reverse channel order)
+            // - Subtract mean values for BGR: [103.939, 116.779, 123.68]
+            // - NO scaling (keep in 0-255 range before subtraction)
+            const float MeanB = 103.939f;  // Blue channel mean
+            const float MeanG = 116.779f;  // Green channel mean
+            const float MeanR = 123.68f;   // Red channel mean
             
             image.Mutate(x => x.Resize(new ResizeOptions
             {
                 Size = new SixLabors.ImageSharp.Size(width, height),
                 Mode = SixLabors.ImageSharp.Processing.ResizeMode.Crop
-
             }));
 
             var tensor = new DenseTensor<float>(new[] { 1, height, width, 3 });
@@ -354,24 +375,22 @@ namespace SkinMonitor.Services
                     Span<Rgb24> pixelRow = pixelAccessor.GetRowSpan(y);
                     for (int x = 0; x < width; x++)
                     {
-                        tensor[0, y, x, 0] = pixelRow[x].R - MeanR;
-                        tensor[0, y, x, 1] = pixelRow[x].G - MeanG;
-                        tensor[0, y, x, 2] = pixelRow[x].B - MeanB;
+                        // Convert RGB to BGR and subtract Caffe means
+                        tensor[0, y, x, 0] = pixelRow[x].B - MeanB;  // Blue channel (was Red)
+                        tensor[0, y, x, 1] = pixelRow[x].G - MeanG;  // Green channel (stays same)
+                        tensor[0, y, x, 2] = pixelRow[x].R - MeanR;  // Red channel (was Blue)
                     }
                 }
             });
             
-            // After PreprocessImage, print debug info
-            var preprocessed = PreprocessImage(image);
-            Debug.WriteLine("C# preprocessing result:");
-            Debug.WriteLine($"First 3 values: {preprocessed[0]}, {preprocessed[1]}, {preprocessed[2]}");
-// Calculate min/max/mean for the entire tensor
-            float min = preprocessed.Min();
-            float max = preprocessed.Max();
-            float mean = preprocessed.Average();
-            Debug.WriteLine($"Min: {min}, Max: {max}, Mean: {mean}");
+            var result = tensor.ToArray();
             
-            return tensor.ToArray();
+            // Debug info for preprocessing
+            Debug.WriteLine("[AIAnalysisService] Preprocessing (ResNet50 Caffe mode):");
+            Debug.WriteLine($"[AIAnalysisService] First 3 pixels (BGR): {result[0]:F2}, {result[1]:F2}, {result[2]:F2}");
+            Debug.WriteLine($"[AIAnalysisService] Range - Min: {result.Min():F2}, Max: {result.Max():F2}, Mean: {result.Average():F2}");
+            
+            return result;
         }
 
 
@@ -442,7 +461,7 @@ namespace SkinMonitor.Services
             }
             catch(Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Failed to copy model '{modelName}': {ex.Message}");
+                Debug.WriteLine($"[AIAnalysisService] Failed to copy model '{modelName}': {ex.Message}");
                 return null;
             }
         }

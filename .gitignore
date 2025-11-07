@@ -1,7 +1,61 @@
-.gitignore
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
 
-obj/Debug/
-obj/
+# Visual Studio
+.vs/
+.vscode/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
 
+# JetBrains Rider
 .idea/
-bin/
+*.sln.iml
+
+# .NET MAUI
+MauiProgram.g.cs
+*.generated.cs
+
+# User-specific files
+*.suo
+*.user
+*.sln.docstates
+
+# Xamarin
+*.apk
+*.aab
+*.ipa
+
+# ONNX Models (optional - uncomment if models are large)
+# *.onnx
+# *.h5
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Local data
+*.db
+*.db-shm
+*.db-wal
+
+Project.txt

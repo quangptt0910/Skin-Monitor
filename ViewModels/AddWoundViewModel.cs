@@ -1,87 +1,76 @@
 ﻿using System;
-using System.Windows.Input;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
-using SkinMonitor.Models;
-using SkinMonitor.Services;
-using Microsoft.Maui.Media;
-using Microsoft.Maui.Storage;
-using Microsoft.Maui.Controls;
+using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.Media;
+using Microsoft.Maui.Storage;
+using SkinMonitor.Models;
+using SkinMonitor.Services;
 
 namespace SkinMonitor.ViewModels;
 
-
-public class AddWoundViewModel : BaseViewModel
+public partial class AddWoundViewModel : BaseViewModel
 {
     private readonly IWoundRepository _woundRepository;
-    
-    private string _woundName = string.Empty;
-    
+    private readonly IAIAnalysisService _aiAnalysisService;
 
-    public string WoundName
-    {
-        get => _woundName;
-        set => SetProperty(ref _woundName, value);
-    }
+    // Backing store for wound types enum list
+    private readonly List<WoundType> _woundTypes = new(Enum.GetValues<WoundType>());
 
-    private string _bodyLocation = string.Empty;
-    public string BodyLocation
-    {
-        get => _bodyLocation;
-        set => SetProperty(ref _bodyLocation, value);
-    }
-    
-    private readonly List<WoundType> _woundTypes = new List<WoundType>
-    {
-        WoundType.Surgical,
-        WoundType.Burn,
-        WoundType.Diabetic,
-        WoundType.Traumatic,
-        WoundType.Pressure,
-        WoundType.Other
-    };
-    
-    public List<WoundType> WoundTypes
-    {
-        get => _woundTypes;
-        // Usually set only once so no setter needed or implement setter if you want notifications
-    }
-    
+    // Properties with source generators
+    public List<WoundType> WoundTypes => _woundTypes;
+
+    [ObservableProperty]
     private WoundType _selectedWoundType;
-    public WoundType SelectedWoundType
-    {
-        get => _selectedWoundType;
-        set => SetProperty(ref _selectedWoundType, value);
-    }
 
+    [ObservableProperty]
+    private string _aISuggestionSummary = string.Empty;
+
+    [ObservableProperty]
+    private string _woundName = string.Empty;
+
+    [ObservableProperty]
+    private string _bodyLocation = string.Empty;
+
+    [ObservableProperty]
     private string _notes = string.Empty;
-    public string Notes
-    {
-        get => _notes;
-        set => SetProperty(ref _notes, value);
-    }
 
+    [ObservableProperty]
     private string? _photoPath;
-    public string? PhotoPath
-    {
-        get => _photoPath;
-        set => SetProperty(ref _photoPath, value);
-    }
 
-    public ICommand PickPhotoCommand { get; }
-    public ICommand CapturePhotoCommand { get; }
-    public ICommand SaveWoundCommand { get; }
-    public ICommand CancelCommand { get; }
+    [ObservableProperty]
+    private bool _isPhotoPreviewVisible;
+    
+    
+    // Commands
+    public IAsyncRelayCommand PickPhotoCommand { get; }
+    public IAsyncRelayCommand CapturePhotoCommand { get; }
+    public IAsyncRelayCommand SaveWoundCommand { get; }
+    public IAsyncRelayCommand CancelCommand { get; }
+    public IAsyncRelayCommand SuggestWoundTypeCommand { get; }
+    
+    
 
-    public AddWoundViewModel(IWoundRepository woundRepository)
+    public AddWoundViewModel(IWoundRepository woundRepository, IAIAnalysisService aiAnalysisService)
     {
         _woundRepository = woundRepository;
-
-        PickPhotoCommand = new Command(async () => await PickPhotoAsync());
-        CapturePhotoCommand = new Command(async () => await CapturePhotoAsync());
-        SaveWoundCommand = new Command(async () => await SaveWoundAsync());
-        CancelCommand = new Command(async () => await CancelAsync());
+        _aiAnalysisService = aiAnalysisService;
+        _selectedWoundType = WoundType.Unknown;
+        
+        // Initialize commands with method bindings
+        PickPhotoCommand = new AsyncRelayCommand(PickPhotoAsync);
+        CapturePhotoCommand = new AsyncRelayCommand(CapturePhotoAsync);
+        SaveWoundCommand = new AsyncRelayCommand(SaveWoundAsync);
+        CancelCommand = new AsyncRelayCommand(CancelAsync);
+        SuggestWoundTypeCommand = new AsyncRelayCommand(SuggestWoundTypeAsync);
+    }
+    
+    partial void OnPhotoPathChanged(string? oldValue, string? newValue)
+    {
+        IsPhotoPreviewVisible = !string.IsNullOrEmpty(newValue);
     }
 
     private async Task PickPhotoAsync()
@@ -93,11 +82,7 @@ public class AddWoundViewModel : BaseViewModel
                 Title = "Pick a wound photo"
             });
 
-            if (photoResult != null)
-            {
-                var filePath = photoResult.FullPath;
-                PhotoPath = filePath;
-            }
+            if (photoResult != null) PhotoPath = photoResult.FullPath;
         }
         catch (Exception ex)
         {
@@ -123,7 +108,6 @@ public class AddWoundViewModel : BaseViewModel
                     using var sourceStream = await photo.OpenReadAsync();
                     using var localFileStream = File.Create(localFilePath);
                     await sourceStream.CopyToAsync(localFileStream);
-
                     PhotoPath = localFilePath;
                 }
             }
@@ -135,6 +119,35 @@ public class AddWoundViewModel : BaseViewModel
         catch (Exception ex)
         {
             await App.Current.MainPage.DisplayAlert("Error", $"Photo capture failed: {ex.Message}", "OK");
+        }
+    }
+
+    private async Task SuggestWoundTypeAsync()
+    {
+        if (string.IsNullOrEmpty(PhotoPath))
+        {
+            AISuggestionSummary = "Please pick or capture a photo first.";
+            return;
+        }
+
+        AISuggestionSummary = "Analyzing photo…";
+
+        try
+        {
+            var classification = await _aiAnalysisService.ClassifyWoundTypeAsync(PhotoPath);
+
+            if (classification == null || classification.PrimaryType == WoundType.Unknown)
+            {
+                AISuggestionSummary = "AI could not classify this wound.";
+                return;
+            }
+
+            SelectedWoundType = classification.PrimaryType;
+            AISuggestionSummary = $"AI suggests: {classification.PrimaryType} ({classification.Confidence:P1})";
+        }
+        catch (Exception ex)
+        {
+            AISuggestionSummary = $"AI analysis failed: {ex.Message}";
         }
     }
 
@@ -197,15 +210,12 @@ public class AddWoundViewModel : BaseViewModel
 
     private async Task<string> GenerateThumbnailAsync(string originalImagePath)
     {
-        // Load the original image using SkiaSharp
         using var original = SkiaSharp.SKBitmap.Decode(originalImagePath);
 
         if (original == null)
             return string.Empty;
 
-        // Resize to thumbnail size, e.g., 100x100
         var scale = Math.Min(100f / original.Width, 100f / original.Height);
-
         int width = (int)(original.Width * scale);
         int height = (int)(original.Height * scale);
 
@@ -217,7 +227,6 @@ public class AddWoundViewModel : BaseViewModel
         using var image = SkiaSharp.SKImage.FromBitmap(resized);
         using var data = image.Encode(SkiaSharp.SKEncodedImageFormat.Jpeg, 80);
 
-        // Save thumbnail file
         var thumbDir = Path.Combine(FileSystem.AppDataDirectory, "Thumbnails");
         Directory.CreateDirectory(thumbDir);
         var thumbPath = Path.Combine(thumbDir, Path.GetFileName(originalImagePath));

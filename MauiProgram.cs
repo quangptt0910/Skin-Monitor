@@ -3,6 +3,7 @@
 using SkinMonitor.Services;
 using SkinMonitor.ViewModels;
 using CommunityToolkit.Maui;
+using SkinMonitor.Data;
 using SkinMonitor.Views;
 
 
@@ -26,23 +27,20 @@ public static class MauiProgram
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
             
-            
-            builder.Services.Configure<AIAnalysisOptions>(options =>
-            {
-                // Configure with your API key and endpoint
-                options.ModelsPath = "Models";
-                options.EnableModelCaching = true;
-                options.DefaultConfidenceThreshold = 0.6;
-                options.MaxImageSizeMB = 10;
-            });
 
 #if DEBUG
             builder.Logging.AddDebug();
-#endif
+#endif      
+            // Data
+            builder.Services.AddSingleton<WoundDbContext>();
+            builder.Services.AddSingleton<WoundRepository>();
+            
+            builder.Services.AddSingleton<IAIAnalysisService, AIAnalysisService>();
 
             builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
+            builder.Services.AddSingleton<PhotoService>();
+
             builder.Services.AddScoped<IWoundRepository, WoundRepository>();
-            builder.Services.AddScoped<IPhotoService, PhotoService>();
             builder.Services.AddScoped<IAIAnalysisService, AIAnalysisService>();
 
             // navigation

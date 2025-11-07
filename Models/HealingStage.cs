@@ -5,6 +5,7 @@ public enum HealingStage
     Initial,
     Inflammatory,
     Proliferative,
-    Remodeling,
-    Healed
+    Maturation,
+    Stalled,
+    Improving
 }

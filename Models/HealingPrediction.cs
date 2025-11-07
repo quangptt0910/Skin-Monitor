@@ -2,8 +2,8 @@
 
 public class HealingPrediction
 {
-    public int PredictedHealingDays { get; set; }
+    public int EstimatedDaysToHeal { get; set; }
     public double ConfidenceLevel { get; set; }
-    public string TrendAnalysis { get; set; } = string.Empty;
-    public double DailyReductionRate { get; set; }
+    public DateTime PredictionDate { get; set; }
+    public HealingStage HealingStage { get; set; }
 }

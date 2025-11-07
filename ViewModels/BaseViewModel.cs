@@ -1,10 +1,11 @@
 ﻿// ViewModels/BaseViewModel.cs
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace SkinMonitor.ViewModels;
 
-public abstract class BaseViewModel : INotifyPropertyChanged
+public abstract class BaseViewModel : ObservableObject
 {
     private bool _isBusy;
     private string _title = string.Empty;
@@ -33,12 +34,6 @@ public abstract class BaseViewModel : INotifyPropertyChanged
         OnPropertyChanged(propertyName);
         return true;
     }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
+    
 }
 

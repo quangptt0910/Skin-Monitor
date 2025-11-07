@@ -17,9 +17,7 @@ public class WoundListViewModel : BaseViewModel
     public ICommand AddWoundCommand { get; }
     public ICommand SelectWoundCommand { get; }
     public ICommand RefreshCommand { get; }
-    public ICommand GoToHomeCommand { get; }
-    public ICommand GoToCameraCommand { get; }
-    public ICommand GoToAnalysisCommand { get; }
+
     public ICommand AnalyzeWoundCommand { get; }
 
 

@@ -9,6 +9,5 @@ public class WoundAnalysisResult
     public double ConfidenceScore { get; set; }
     public string? ErrorMessage { get; set; }
     
-    public HealingPrediction HealingPrediction { get; set; }
-    public string HealingProgress => HealingPrediction?.TrendAnalysis ?? "N/A";
+    public HealingPrediction? HealingPrediction { get; set; }
 }

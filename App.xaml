@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:SkinMonitor"
              x:Class="SkinMonitor.App"
-             xmlns:converters="clr-namespace:SkinMonitor.Converters">
+             xmlns:converters="clr-namespace:SkinMonitor.Converters"
+             xmlns:global="clr-namespace:">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -13,6 +14,11 @@
             
             <converters:IsSelectedConverter x:Key="IsSelectedConverter" />
             <converters:IsSelectedTextColorConverter x:Key="IsSelectedTextColorConverter" />
+            <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
+            <converters:BoolToTextConverter x:Key="BoolToTextConverter" />
+            <global:InverseBooleanConverter x:Key="InverseBoolConverter" />
+            <global:RiskLevelColorConverter x:Key="RiskLevelColorConverter" />
+            <converters:FilePathToImageSourceConverter x:Key="FilePathToImageSourceConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

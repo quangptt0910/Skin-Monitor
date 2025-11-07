@@ -86,10 +86,3 @@ SkinMonitor/
 - [ ] Data export to PDF/CSV
 - [ ] Cloud sync
 
-### License
-
-[Add your license here]
-
-### Contributors
-
-[Add contributors here]

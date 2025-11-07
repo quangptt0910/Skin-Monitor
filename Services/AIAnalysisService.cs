@@ -1,508 +1,460 @@
-﻿using Microsoft.ML;
-using Microsoft.ML.Data;
-using Microsoft.ML.Vision;
+﻿using System.Diagnostics;
+using Microsoft.ML.OnnxRuntime;
+using Microsoft.ML.OnnxRuntime.Tensors;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using SkinMonitor.Models;
-using System.Text.Json;
-using System;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.ML;
-using SkinMonitor.Models;
-using SkiaSharp;
 
-
-
-namespace SkinMonitor.Services;
-
-public interface IAIAnalysisService
+using Image = SixLabors.ImageSharp.Image;
+namespace SkinMonitor.Services
 {
-    Task<WoundAnalysisResult> AnalyzeWoundAsync(int woundId, List<WoundPhoto> woundPhotos, string imagePath);
-    Task<double> CalculateWoundAreaAsync(string imagePath);
-    Task<InfectionRiskAssessment> AssessInfectionRiskAsync(string imagePath, HealingStageLog? latestLog = null);
-    Task<HealingPrediction> PredictHealingProgressAsync(int woundId, List<WoundPhoto> photos);
-    Task<WoundClassification> ClassifyWoundTypeAsync(string imagePath);
-}
-
-public class AIAnalysisOptions
-{
-    public string ModelsPath { get; set; } = "Models";
-    public bool EnableModelCaching { get; set; } = true;
-    public double DefaultConfidenceThreshold { get; set; } = 0.5;
-    public int MaxImageSizeMB { get; set; } = 10;
-}
-
-public class AIAnalysisService : IAIAnalysisService, IDisposable
-{
-    private readonly MLContext _mlContext;
-    private readonly ILogger<AIAnalysisService> _logger;
-    private readonly AIAnalysisOptions _options;
-    private ITransformer? _woundClassificationModel;
-    private ITransformer? _infectionDetectionModel;
-    private bool _disposed = false;
-    private readonly IWoundRepository _woundRepository;
-
-    public AIAnalysisService(
-        ILogger<AIAnalysisService> logger,
-        IOptions<AIAnalysisOptions> options,
-        IWoundRepository woundRepository)
+    public interface IAIAnalysisService
     {
-        _logger = logger;
-        _options = options.Value;
-        _woundRepository = woundRepository;
-
-        _mlContext = new MLContext(seed: 0);
-        // Initialize models
-        _ = Task.Run(LoadModels);
+        Task<WoundAnalysisResult> AnalyzeWoundAsync(int woundId, List<WoundPhoto> photos, string primaryImagePath);
+        Task<double> CalculateWoundAreaAsync(string imagePath);
+        Task<InfectionRiskAssessment> AssessInfectionRiskAsync(string imagePath, HealingStageLog? latestLog = null);
+        Task<HealingPrediction> PredictHealingProgressAsync(int woundId, List<WoundPhoto> photos);
+        Task<WoundClassification> ClassifyWoundTypeAsync(string imagePath);
     }
-
-    private async Task LoadModels()
+    
+    public class AIAnalysisService : IAIAnalysisService, IDisposable
     {
-        try
-        {
-            _logger.LogInformation("Loading AI models...");
+        private InferenceSession? _classificationSession;
+        private InferenceSession? _segmentationSession;
+        private bool _isInitialized;
+        private SemaphoreSlim _initializationLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _inferenceLock = new SemaphoreSlim(1, 1); // Prevent concurrent inference
 
-            // Load pre-trained models (these would be trained separately)
-            await LoadWoundClassificationModel();
-            await LoadInfectionDetectionModel();
-            
-            _logger.LogInformation("AI models loaded successfully.");
+
+        public AIAnalysisService()
+        {
+            // Initialize models on a background thread to avoid blocking the UI
+            Task.Run(InitializeModelsAsync);
         }
-        catch (Exception ex)
+
+        private async Task EnsureInitializedAsync()
         {
-            _logger.LogError(ex, "Failed to load AI models");
-        }
-    }
+            if (_isInitialized)
+                return;
 
-    private async Task LoadWoundClassificationModel()
-    {
-        try
-        {
-            //TODO: Load actual ONNX model when available
-            // In a real implementation, you would load a pre-trained ONNX model
-
-            var modelPath = Path.Combine(_options.ModelsPath, "wound_classification.onnx");
-
-            if (File.Exists(modelPath))
+            await _initializationLock.WaitAsync();
+            try
             {
-                _logger.LogInformation("Wound classification model found at {ModelPath}", modelPath);
+                if (_isInitialized)
+                    return;
+
+                await InitializeModelsAsync();
             }
-            else
+            finally
             {
-                _logger.LogWarning("Wound classification model not found at");
+                _initializationLock.Release();
             }
-            await Task.Delay(100).ConfigureAwait(false); // Simulate loading time
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to load wound classification model");
         }
         
-    }
-
-    private async Task LoadInfectionDetectionModel()
-    {
-        try
+        private async Task InitializeModelsAsync()
         {
-            var modelPath = Path.Combine(_options.ModelsPath, "infection_detection.onnx");
-            
-            if (File.Exists(modelPath))
+            try
             {
-                // _infectionDetectionModel = _mlContext.Model.Load(modelPath, out _);
-                _logger.LogInformation("Infection detection model loaded");
+                var classificationModelPath = await GetModelPathFromBundleAsync("wound_classification_model.onnx");
+                if (classificationModelPath != null)
+                {
+                    _classificationSession = new InferenceSession(classificationModelPath);
+                }
+
+                // var segmentationModelPath = await GetModelPathFromBundleAsync("unet_wound_segmentation.onnx");
+                // if (segmentationModelPath != null)
+                // {
+                //     _segmentationSession = new InferenceSession(segmentationModelPath);
+                // }
+                _segmentationSession = null; // Segmentation model is optional for now
+
+                _isInitialized = _classificationSession != null;
+                //&& _segmentationSession != null;
+                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Model initialized!");
+
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogWarning("Infection detection model not found at {ModelPath}", modelPath);
+                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Model initialization failed: {ex.Message}");
+                _isInitialized = false;
             }
-            
-            await Task.Delay(100).ConfigureAwait(false);
         }
-        catch (Exception ex)
+
+        public async Task<WoundAnalysisResult> AnalyzeWoundAsync(int woundId, List<WoundPhoto> photos, string primaryImagePath)
         {
-            _logger.LogError(ex, "Failed to load infection detection model");
-        }
-    }
-
-    public async Task<WoundAnalysisResult> AnalyzeWoundAsync(int woundId, List<WoundPhoto> woundPhotos, string imagePath)
-    {
-        if (string.IsNullOrEmpty(imagePath))
-            throw new ArgumentException("Image path cannot be null or empty", nameof(imagePath));
-
-        if (!File.Exists(imagePath))
-            throw new FileNotFoundException($"Image file not found: {imagePath}");
-        
-        try
-        {
-            _logger.LogInformation("Starting wound analysis for image: {ImagePath}", imagePath);
-
-            // Validate image size
-            var fileInfo = new FileInfo(imagePath);
-            if (fileInfo.Length > _options.MaxImageSizeMB * 1024 * 1024)
+            if (!_isInitialized || !File.Exists(primaryImagePath))
             {
-                throw new InvalidOperationException($"Image file too large: {fileInfo.Length / (1024 * 1024)}MB. Maximum allowed: {_options.MaxImageSizeMB}MB");
+                return GetFallbackAnalysis("AI service is not initialized or the image file was not found.");
             }
-            
-            var areaTask = CalculateWoundAreaAsync(imagePath);
-            var classificationTask = ClassifyWoundTypeAsync(imagePath);
-            var infectionRiskTask = AssessInfectionRiskAsync(imagePath);
 
-            await Task.WhenAll(areaTask, classificationTask, infectionRiskTask);
-            
-            var area = await areaTask;
-            var classification = await classificationTask;
-            var infectionRisk = await infectionRiskTask;
-            var healingPrediction = await PredictHealingProgressAsync(woundId, woundPhotos);
-
-            var result = new WoundAnalysisResult
+            try
             {
-                WoundAreaCm2 = area,
-                Classification = classification,
-                InfectionRisk = infectionRisk,
-                AnalysisDate = DateTime.UtcNow,
-                ConfidenceScore = CalculateOverallConfidence(classification, infectionRisk),
-                HealingPrediction = healingPrediction
+                using var image = await SixLabors.ImageSharp.Image.LoadAsync<Rgb24>(primaryImagePath);
+                var preprocessedImage = PreprocessImage(image, 299, 299);
 
-            };
-            _logger.LogInformation("Wound analysis completed successfully. Area: {Area}cm², Confidence: {Confidence:P2}", 
-                area, result.ConfidenceScore);
+                var classificationTask = ClassifyWoundAsync(preprocessedImage);
+                var areaTask = CalculateWoundAreaAsync(preprocessedImage);
+                var infectionRiskTask = AssessInfectionRiskAsync(preprocessedImage, photos?.LastOrDefault());
 
-            return result;
+                // Run tasks in parallel for efficiency
+                await Task.WhenAll(classificationTask, areaTask, infectionRiskTask);
+
+                return new WoundAnalysisResult
+                {
+                    AnalysisDate = DateTime.Now,
+                    Classification = await classificationTask,
+                    WoundAreaCm2 = await areaTask,
+                    InfectionRisk = await infectionRiskTask,
+                    ConfidenceScore = (await classificationTask).Confidence,
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Analysis failed: {ex.Message}");
+                return GetFallbackAnalysis(ex.Message);
+            }
         }
-        catch (Exception ex)
+
+        public async Task<WoundClassification> ClassifyWoundTypeAsync(string imagePath)
         {
-            _logger.LogError(ex, "Error analyzing wound image: {ImagePath}", imagePath);
-            return new WoundAnalysisResult
+            if (!File.Exists(imagePath))
+                return GetFallbackClassification("Image file was not found.");
+
+            try
             {
-                AnalysisDate = DateTime.Now,
-                ConfidenceScore = 0.0,
-                ErrorMessage = ex.Message
-            };
+                // Ensure model is ready
+                await EnsureInitializedAsync();
+
+                if (!_isInitialized)
+                    return GetFallbackClassification("AI service is not initialized.");
+
+                // Load and process image
+                using var img = await Image.LoadAsync<Rgb24>(imagePath);
+
+                // Preprocess image
+                var preprocessedImage = PreprocessImage(img, 299, 299);
+
+                // Run inference
+                return await ClassifyWoundAsync(preprocessedImage);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Classification failed: {ex.Message}\n{ex.StackTrace}");
+                return GetFallbackClassification(ex.Message);
+            }
         }
-    }
 
-    public async Task<double> CalculateWoundAreaAsync(string imagePath)
-    {
-        if (string.IsNullOrEmpty(imagePath))
-            throw new ArgumentException("Image path cannot be null or empty", nameof(imagePath));
-
-        if (!File.Exists(imagePath))
-            throw new FileNotFoundException($"Image file not found: {imagePath}");
-        
-        try
+        public async Task<double> CalculateWoundAreaAsync(string imagePath)
         {
-            // Placeholder implementation using image processing
-            // In a real app, this would use computer vision to detect wound edges
-            // and calculate the actual area based on a reference object
-            _logger.LogDebug("Calculating wound area for image: {ImagePath}", imagePath);
+            if (!_isInitialized || !File.Exists(imagePath)) return 0.0;
 
-            using var bitmap = SkiaSharp.SKBitmap.Decode(imagePath);
-            if (bitmap == null) 
+            try
             {
-                _logger.LogWarning("Failed to decode image: {ImagePath}", imagePath);
+                using var image = await SixLabors.ImageSharp.Image.LoadAsync<Rgb24>(imagePath);
+                var preprocessedImage = PreprocessImage(image, 299, 299);
+                return await CalculateWoundAreaAsync(preprocessedImage);
+            }
+            catch (Exception ex)
+            {
+                 System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Area calculation from path failed: {ex.Message}");
                 return 0.0;
             }
-
-            // Simulate area calculation based on image analysis
-            // This would involve edge detection, segmentation, and measurement
-            var simulatedArea = Random.Shared.NextDouble() * 10.0; // 0-10 cm²
-            
-            await Task.Delay(500).ConfigureAwait(false); // Simulate processing time
-            var result = Math.Round(simulatedArea, 2);
-            _logger.LogDebug("Calculated wound area: {Area}cm² for image: {ImagePath}", result, imagePath);
-        
-            return result;
         }
-        catch(Exception ex)
-        {
-            _logger.LogError(ex, "Error calculating wound area for image: {ImagePath}", imagePath);
-            return 0.0;
-        }
-    }
-
-    public async Task<InfectionRiskAssessment> AssessInfectionRiskAsync(string imagePath, HealingStageLog? latestLog = null)
-{
-    if (string.IsNullOrEmpty(imagePath))
-        throw new ArgumentException("Image path cannot be null or empty", nameof(imagePath));
-
-    if (!File.Exists(imagePath))
-        throw new FileNotFoundException($"Image file not found: {imagePath}");
-
-    try
-    {
-        _logger.LogDebug("Assessing infection risk for image: {ImagePath}", imagePath);
-
-        await Task.Delay(300).ConfigureAwait(false); // Simulate processing time
         
-        var riskFactors = new List<string>();
-        var riskScore = 0.0;
-
-        // Analyze based on healing stage log if available
-        if (latestLog != null)
+        public async Task<InfectionRiskAssessment> AssessInfectionRiskAsync(string imagePath, HealingStageLog? latestLog = null)
         {
-            if (latestLog.HasRedness)
+            if (!_isInitialized || !File.Exists(imagePath))
             {
-                riskFactors.Add("Redness detected");
-                riskScore += 0.3;
+                return GetFallbackInfectionRisk("AI service is not initialized or the image file was not found.");
             }
-            
-            if (latestLog.HasSwelling)
+
+            try
             {
-                riskFactors.Add("Swelling present");
-                riskScore += 0.2;
+                using var image = await SixLabors.ImageSharp.Image.LoadAsync<Rgb24>(imagePath);
+                var preprocessedImage = PreprocessImage(image, 299, 299);
+                return await AssessInfectionRiskAsync(preprocessedImage, null); // Pass null for latestPhoto as we don't have it here
             }
-            
-            if (latestLog.HasDrainage && latestLog.DrainageType == "Pus")
+            catch (Exception ex)
             {
-                riskFactors.Add("Purulent drainage");
-                riskScore += 0.4;
+                return GetFallbackInfectionRisk(ex.Message);
             }
         }
 
-        // Simulate image-based analysis
-        var imageRisk = Random.Shared.NextDouble() * 0.5;
-        riskScore += imageRisk;
-        riskScore = Math.Min(riskScore, 1.0);
-
-        var result = new InfectionRiskAssessment
+        public async Task<HealingPrediction> PredictHealingProgressAsync(int woundId, List<WoundPhoto> photos)
         {
-            RiskScore = riskScore,
-            RiskLevel = GetRiskLevel(riskScore),
-            RiskFactors = riskFactors,
-            Recommendations = GenerateRecommendations(riskScore, riskFactors)
-        };
+            // This is a placeholder for a more complex predictive model.
+            // A real implementation might analyze the trend of WoundAreaCm2 over time.
+            await Task.Delay(250); // Simulate processing
 
-        _logger.LogDebug("Infection risk assessment completed. Risk level: {RiskLevel}, Score: {Score:F2}", 
-            result.RiskLevel, result.RiskScore);
-
-        return result;
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error assessing infection risk for image: {ImagePath}", imagePath);
-        
-        return new InfectionRiskAssessment
-        {
-            RiskScore = 0.0,
-            RiskLevel = "Unknown",
-            RiskFactors = new List<string> { $"Analysis error: {ex.Message}" },
-            Recommendations = new List<string> { "Please consult a healthcare professional" }
-        };
-    }
-}
-
-    public async Task<HealingPrediction> PredictHealingProgressAsync(int woundId, List<WoundPhoto> photos)
-    {
-        if (photos == null)
-            throw new ArgumentNullException(nameof(photos));
-        
-        try
-        {
-            _logger.LogDebug("Predicting healing progress for wound {WoundId} with {PhotoCount} photos", 
-                woundId, photos.Count);
-
-            if (photos.Count < 2)
+            if (photos == null || photos.Count < 2)
             {
-                _logger.LogWarning("Insufficient photos for prediction. Need at least 2, got {Count}", photos.Count);
-                
-                return new HealingPrediction
-                {
-                    PredictedHealingDays = 0,
-                    ConfidenceLevel = 0.0,
-                    TrendAnalysis = "Insufficient data for prediction"
-                };
+                return new HealingPrediction { EstimatedDaysToHeal = 21, ConfidenceLevel = 0.60, PredictionDate = DateTime.Now, HealingStage = HealingStage.Initial };
             }
 
-            await Task.Delay(400).ConfigureAwait(false); // Simulate processing time
-
-            // Analyze healing trend based on wound area changes
-            var photosWithArea = photos.Where(p => p.WoundAreaCm2.HasValue)
-                                      .OrderBy(p => p.DateTaken)
-                                      .ToList();
-
-            if (photosWithArea.Count < 2)
-            {
-                return new HealingPrediction
-                {
-                    PredictedHealingDays = 0,
-                    ConfidenceLevel = 0.0,
-                    TrendAnalysis = "No area measurements available"
-                };
-            }
-
-            var areas = photosWithArea.Select(p => p.WoundAreaCm2!.Value).ToList();
-            
-            // Calculate healing rate
-            var timeSpan = photosWithArea.Last().DateTaken - photosWithArea.First().DateTaken;
-            var areaReduction = areas.First() - areas.Last();
-            var dailyReductionRate = areaReduction / Math.Max(timeSpan.TotalDays, 1);
-
-            var remainingArea = areas.Last();
-            var predictedDays = remainingArea / Math.Max(dailyReductionRate, 0.001);
-
-            var result = new HealingPrediction
-            {
-                PredictedHealingDays = Math.Max(0, (int)Math.Round(predictedDays)),
-                ConfidenceLevel = CalculatePredictionConfidence(areas),
-                TrendAnalysis = AnalyzeTrend(areas),
-                DailyReductionRate = dailyReductionRate
-            };
-
-            _logger.LogDebug("Healing prediction completed for wound {WoundId}. Predicted days: {Days}, Confidence: {Confidence:P2}", 
-                woundId, result.PredictedHealingDays, result.ConfidenceLevel);
-
-            return result;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error predicting healing progress for wound {WoundId}", woundId);
-            
             return new HealingPrediction
             {
-                PredictedHealingDays = 0,
-                ConfidenceLevel = 0.0,
-                TrendAnalysis = $"Prediction error: {ex.Message}"
+                EstimatedDaysToHeal = Math.Max(5, 21 - photos.Count * 2),
+                ConfidenceLevel = Math.Min(0.95, 0.65 + photos.Count * 0.05),
+                PredictionDate = DateTime.Now,
+                HealingStage = photos.Count > 4 ? HealingStage.Improving : HealingStage.Initial
             };
         }
-    }
 
-    
-    public async Task<WoundClassification> ClassifyWoundTypeAsync(string imagePath)
-    {
-        if (string.IsNullOrEmpty(imagePath))
-            throw new ArgumentException("Image path cannot be null or empty", nameof(imagePath));
 
-        if (!File.Exists(imagePath))
-            throw new FileNotFoundException($"Image file not found: {imagePath}");
-
-        try
-        {
-            _logger.LogDebug("Classifying wound type for image: {ImagePath}", imagePath);
-
-            await Task.Delay(200).ConfigureAwait(false); // Simulate processing time
+        #region Core AI Methods
         
-            // Placeholder implementation - would use actual ML model in production
-            var woundTypes = Enum.GetValues<WoundType>().Cast<WoundType>().ToArray();
-            var randomType = woundTypes[Random.Shared.Next(woundTypes.Length)];
-            var confidence = 0.6 + Random.Shared.NextDouble() * 0.3; // 60-90%
-
-            var result = new WoundClassification
-            {
-                PrimaryType = randomType,
-                Confidence = confidence,
-                AlternativeTypes = woundTypes.Where(t => t != randomType)
-                    .Take(2)
-                    .ToDictionary(t => t, t => Random.Shared.NextDouble() * 0.4)
-            };
-
-            _logger.LogDebug("Wound classification completed. Type: {Type}, Confidence: {Confidence:P2}", 
-                result.PrimaryType, result.Confidence);
-
-            return result;
-        }
-        catch (Exception ex)
+        private async Task<WoundClassification> ClassifyWoundAsync(float[] imageData)
         {
-            _logger.LogError(ex, "Error classifying wound type for image: {ImagePath}", imagePath);
-        
-            return new WoundClassification
-            {
-                PrimaryType = WoundType.Other,
-                Confidence = 0.0,
-                AlternativeTypes = new Dictionary<WoundType, double>(),
-                ErrorMessage = ex.Message
-            };
-        }
-    }
-
-    private double CalculateOverallConfidence(WoundClassification classification, InfectionRiskAssessment infectionRisk)
-    {
-        return (classification.Confidence + (1.0 - Math.Abs(infectionRisk.RiskScore - 0.5))) / 2.0;
-    }
-
-    private string GetRiskLevel(double riskScore)
-    {
-        return riskScore switch
-        {
-            >= 0.7 => "High",
-            >= 0.4 => "Moderate",
-            >= 0.2 => "Low",
-            _ => "Very Low"
-        };
-    }
-
-    private List<string> GenerateRecommendations(double riskScore, List<string> riskFactors)
-    {
-        var recommendations = new List<string>();
-
-        if (riskScore >= 0.7)
-        {
-            recommendations.Add("Seek immediate medical attention");
-            recommendations.Add("Monitor for worsening symptoms");
-        }
-        else if (riskScore >= 0.4)
-        {
-            recommendations.Add("Consult with healthcare provider");
-            recommendations.Add("Increase monitoring frequency");
-        }
-        else
-        {
-            recommendations.Add("Continue current care routine");
-            recommendations.Add("Monitor for changes");
-        }
-
-        if (riskFactors.Contains("Purulent drainage"))
-        {
-            recommendations.Add("Clean wound thoroughly");
-        }
-
-        return recommendations;
-    }
-
-    private double CalculatePredictionConfidence(List<double> areas)
-    {
-        if (areas.Count < 3) return 0.5;
-        
-        // Calculate consistency of healing trend
-        var differences = new List<double>();
-        for (int i = 1; i < areas.Count; i++)
-        {
-            differences.Add(areas[i-1] - areas[i]);
-        }
-        
-        var avgDifference = differences.Average();
-        var variance = differences.Select(d => Math.Pow(d - avgDifference, 2)).Average();
-        var consistency = 1.0 / (1.0 + variance);
-        
-        return Math.Min(0.95, Math.Max(0.1, consistency));
-    }
-
-    private string AnalyzeTrend(List<double> areas)
-    {
-        if (areas.Count < 2) return "Insufficient data";
-        
-        var totalReduction = areas.First() - areas.Last();
-        var reductionPercentage = (totalReduction / areas.First()) * 100;
-        
-        return reductionPercentage switch
-        {
-            >= 30 => "Excellent healing progress",
-            >= 15 => "Good healing progress", 
-            >= 5 => "Moderate healing progress",
-            >= 0 => "Slow healing progress",
-            _ => "Wound appears to be getting larger"
-        };
-    }
-    
-    
-    public void Dispose()
-    {
-        if (!_disposed)
-        {
-            // _woundClassificationModel?.Dispose();
-            // _infectionDetectionModel?.Dispose();
-            // _mlContext?.Dispose();
+            if (_classificationSession == null) return GetFallbackClassification("Classification model not loaded.");
             
-            _disposed = true;
-            _logger.LogInformation("AIAnalysisService disposed");
+            try
+            {
+                var inputTensor = new DenseTensor<float>(imageData, new[] { 1, 299, 299, 3 });
+                var inputs = new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor(_classificationSession.InputNames[0], inputTensor) };
+
+                using var outputs = _classificationSession.Run(inputs);
+                var outputTensor = outputs.First().AsTensor<float>();
+                
+                
+                
+                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Model output length: {outputTensor.Length}");
+                
+                var probabilities = Softmax(outputTensor.ToArray());
+                
+                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Probabilities length: {probabilities.Length}");
+
+                var maxProbability = probabilities.Max();
+                var maxIndex = Array.IndexOf(probabilities, maxProbability);
+                var allWoundTypes = Enum.GetValues<WoundType>().Cast<WoundType>().ToArray();
+
+                // Exclude Unknown from AI model mapping since model has only 10 classes
+                var woundTypes = allWoundTypes.Where(w => w != WoundType.Unknown).ToArray();
+                var primaryType = woundTypes[maxIndex];
+
+                if (maxIndex < 0 || maxIndex >= woundTypes.Length)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Invalid class index {maxIndex}, max valid index is {woundTypes.Length - 1}");
+                    return GetFallbackClassification($"Invalid class index {maxIndex}");
+                }
+                
+                System.Diagnostics.Debug.WriteLine("[AIAnalysisService] Prediction probabilities:");
+                for (int i = 0; i < probabilities.Length; i++)
+                {
+                    var label = Enum.GetName(typeof(WoundType), i);
+                    System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] {label}: {probabilities[i]:P2}");
+                }
+                
+                return new WoundClassification
+                {
+                    PrimaryType = primaryType,
+                    Confidence = maxProbability,
+                    AlternativeTypes = woundTypes
+                        .Select((type, index) => new { Type = type, Confidence = probabilities[index] })
+                        .Where(x => x.Type != woundTypes[maxIndex])
+                        .ToDictionary(x => x.Type, x => x.Confidence)
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Classification failed: {ex.Message}");
+                return GetFallbackClassification(ex.Message);
+            }
         }
+
+        private async Task<double> CalculateWoundAreaAsync(float[] imageData)
+        {
+            if (_segmentationSession == null) return await EstimateAreaSimple(imageData);
+
+            try
+            {
+                var inputTensor = new DenseTensor<float>(imageData, new[] { 1, 299, 299, 3 });
+                var inputs = new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor(_segmentationSession.InputNames[0], inputTensor) };
+
+                using var outputs = _segmentationSession.Run(inputs);
+                var maskTensor = outputs.First().AsTensor<float>();
+
+                var maskArray = maskTensor.ToArray();
+                var woundPixels = maskArray.Count(pixel => pixel > 0.5f); // Threshold for wound pixels
+
+                // This ratio is crucial and needs calibration. It converts pixel count to a real-world area.
+                // For accuracy, a reference object (like a small sticker of known size) should be in the photo.
+                const double PIXELS_PER_CM_SQUARED = 2500; // Example: 50x50 pixels = 1 cm^2
+                var areaCm2 = woundPixels / PIXELS_PER_CM_SQUARED;
+
+                return Math.Round(Math.Max(0.1, areaCm2), 2);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Segmentation failed: {ex.Message}");
+                return await EstimateAreaSimple(imageData);
+            }
+        }
+
+        private async Task<InfectionRiskAssessment> AssessInfectionRiskAsync(float[] imageData, WoundPhoto? latestPhoto)
+        {
+            await Task.Yield(); // Makes the method async without blocking
+            var riskFactors = new List<string>();
+            double riskScore = 0.0;
+
+            // Simple heuristic-based assessment. This could be replaced by another model.
+            double rednessScore = AnalyzeColor(imageData, "red");
+            if (rednessScore > 0.15) // More than 15% of the image is strongly red
+            {
+                riskFactors.Add("Significant redness detected around the wound.");
+                riskScore += 0.4;
+            }
+
+            double yellowScore = AnalyzeColor(imageData, "yellow");
+            if (yellowScore > 0.10) // More than 10% is yellow (could indicate slough/pus)
+            {
+                riskFactors.Add("Yellowish tissue (slough) may be present.");
+                riskScore += 0.3;
+            }
+
+            string riskLevel = riskScore switch {
+                > 0.6 => "High",
+                > 0.3 => "Medium",
+                _ => "Low"
+            };
+
+            return new InfectionRiskAssessment
+            {
+                RiskLevel = riskLevel,
+                RiskScore = Math.Min(1.0, riskScore),
+                RiskFactors = riskFactors,
+                Recommendations = GenerateRecommendations(riskLevel)
+            };
+        }
+
+        #endregion
+
+        #region Image & Data Processing
+
+        private float[] PreprocessImage(Image<Rgb24> image, int width = 299, int height = 299)
+        {
+            // These are subtracted in order: R, G, B
+            const float MeanR = 123.68f;
+            const float MeanG = 116.779f;
+            const float MeanB = 103.939f;
+            
+            image.Mutate(x => x.Resize(new ResizeOptions
+            {
+                Size = new SixLabors.ImageSharp.Size(width, height),
+                Mode = SixLabors.ImageSharp.Processing.ResizeMode.Crop
+
+            }));
+
+            var tensor = new DenseTensor<float>(new[] { 1, height, width, 3 });
+
+            image.ProcessPixelRows(pixelAccessor =>
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    Span<Rgb24> pixelRow = pixelAccessor.GetRowSpan(y);
+                    for (int x = 0; x < width; x++)
+                    {
+                        tensor[0, y, x, 0] = pixelRow[x].R - MeanR;
+                        tensor[0, y, x, 1] = pixelRow[x].G - MeanG;
+                        tensor[0, y, x, 2] = pixelRow[x].B - MeanB;
+                    }
+                }
+            });
+            
+            // After PreprocessImage, print debug info
+            var preprocessed = PreprocessImage(image);
+            Debug.WriteLine("C# preprocessing result:");
+            Debug.WriteLine($"First 3 values: {preprocessed[0]}, {preprocessed[1]}, {preprocessed[2]}");
+// Calculate min/max/mean for the entire tensor
+            float min = preprocessed.Min();
+            float max = preprocessed.Max();
+            float mean = preprocessed.Average();
+            Debug.WriteLine($"Min: {min}, Max: {max}, Mean: {mean}");
+            
+            return tensor.ToArray();
+        }
+
+
+        private double AnalyzeColor(float[] imageData, string color)
+        {
+            var totalPixels = 224 * 224;
+            var colorDominantPixels = 0;
+
+            for (int i = 0; i < totalPixels; i++)
+            {
+                // Note: Image data is normalized, so we can't directly check RGB values.
+                // This heuristic is a placeholder. A proper color analysis model would be needed.
+                var r = imageData[i];
+                var g = imageData[i + totalPixels];
+                var b = imageData[i + 2 * totalPixels];
+                
+                bool isColor = color switch
+                {
+                    "red" => r > g && r > b,
+                    "yellow" => r > b && g > b,
+                    _ => false
+                };
+
+                if (isColor) colorDominantPixels++;
+            }
+            return (double)colorDominantPixels / totalPixels;
+        }
+        
+        private float[] Softmax(float[] scores)
+        {
+            var maxScore = scores.Max();
+            var expScores = scores.Select(s => (float)Math.Exp(s - maxScore)).ToArray();
+            var sumExpScores = expScores.Sum();
+            return expScores.Select(s => s / sumExpScores).ToArray();
+        }
+
+        #endregion
+
+        #region Fallback & Helper Methods
+
+        private WoundAnalysisResult GetFallbackAnalysis(string message) => new() { ErrorMessage = message, Classification = GetFallbackClassification(message), InfectionRisk = GetFallbackInfectionRisk(message), WoundAreaCm2 = 0 };
+        private WoundClassification GetFallbackClassification(string message) => new() { PrimaryType = WoundType.Unknown, Confidence = 0, ErrorMessage = message };
+        private InfectionRiskAssessment GetFallbackInfectionRisk(string message) => new() { RiskLevel = "Unknown", RiskScore = 0, Recommendations = { "Could not assess risk." }, ErrorMessage = message };
+        private async Task<double> EstimateAreaSimple(float[] imageData) { await Task.Delay(50); return new Random().NextDouble() * 5.0 + 1.0; }
+
+        private List<string> GenerateRecommendations(string riskLevel) => riskLevel switch {
+            "Low" => new() { "Continue with the current wound care plan.", "Monitor for any changes." },
+            "Medium" => new() { "Clean the wound thoroughly.", "Consider a more absorbent dressing.", "Monitor closely for signs of infection like increased pain or discharge." },
+            "High" => new() { "A healthcare provider consultation is strongly recommended.", "Professional medical assessment is required immediately." },
+            _ => new() { "Unable to generate recommendations." }
+        };
+
+        private async Task<string?> GetModelPathFromBundleAsync(string modelName)
+        {
+            var cacheDir = FileSystem.AppDataDirectory;
+            var modelPath = Path.Combine(cacheDir, modelName);
+
+            // Don't copy if the model already exists in the cache
+            if (File.Exists(modelPath)) return modelPath;
+
+            try
+            {
+                // Copy the model from the app package (Resources/Raw) to the cache directory
+                using var stream = await FileSystem.OpenAppPackageFileAsync(modelName);
+                using var fileStream = new FileStream(modelPath, FileMode.Create, FileAccess.Write);
+                await stream.CopyToAsync(fileStream);
+                return modelPath;
+            }
+            catch(Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AIAnalysisService] Failed to copy model '{modelName}': {ex.Message}");
+                return null;
+            }
+        }
+        
+        public void Dispose()
+        {
+            _classificationSession?.Dispose();
+            _segmentationSession?.Dispose();
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion
     }
 }
+

@@ -2,10 +2,16 @@
 
 public enum WoundType
 {
-    Surgical,
-    Burn,
-    Diabetic,
-    Traumatic,
-    Pressure,
-    Other
+    Abrasions,
+    Bruises,
+    Burns,
+    Cut,
+    DiabeticWounds,
+    Laseration,
+    Normal,
+    PressureWounds,
+    SurgicalWounds,
+    VenousWounds,
+
+    Unknown // fallback value for unrecognized or fallback cases
 }

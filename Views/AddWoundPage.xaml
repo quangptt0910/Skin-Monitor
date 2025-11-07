@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:SkinMonitor.ViewModels"
+             xmlns:converters="clr-namespace:SkinMonitor.Converters"
              x:Class="SkinMonitor.Views.AddWoundPage"
              Title="Add Wound"
              BackgroundColor="#F5F5F5">
@@ -17,6 +18,31 @@
                    HorizontalOptions="Center"
                    Margin="0,20,0,30" />
 
+            <Button Text="Pick Photo from Gallery" 
+                    Command="{Binding PickPhotoCommand}" />
+              
+            <Button x:Name="CapturePhotoButton"
+                    Text="📸 Take Photo"
+                    BackgroundColor="#2196F3"
+                    TextColor="White"
+                    CornerRadius="8"
+                    Padding="20,12"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    Command="{Binding CapturePhotoCommand}" />
+            
+            <!-- Image preview bound to PhotoPath with converter -->
+            <Image x:Name="PhotoPreview"
+                   Source="{Binding PhotoPath, Converter={StaticResource FilePathToImageSourceConverter}}"
+                   HeightRequest="200"
+                   WidthRequest="200"
+                   Aspect="AspectFit"
+                   BackgroundColor="#E0E0E0"
+                   HorizontalOptions="Center"
+                   IsVisible="{Binding IsPhotoPreviewVisible}" />
+            
+
+            
             <!-- Wound Name Section -->
             <Label Text="Wound Name *"
                    FontSize="16"
@@ -62,8 +88,16 @@
                     TextColor="Black"
                     BackgroundColor="White"
                     FontSize="16"
-                    HeightRequest="50">
+                    HeightRequest="80"
+                    Margin="0,5,0,0">
             </Picker>
+            
+            <!-- AI suggestion -->
+            <Button Text="AI suggestion"
+                   FontSize="16"
+                   TextColor="white"
+                   Command="{Binding SuggestWoundTypeCommand}"/>
+            
 
             <!-- Notes Section -->
             <Label Text="Notes (Optional)"
@@ -80,32 +114,7 @@
                     FontSize="16"
                     HeightRequest="50" />
 
-            <!-- Photo Section -->
-            <Label Text="Initial Photo (Optional)"
-                   FontSize="16"
-                   FontAttributes="Bold"
-                   TextColor="#212121"
-                   Margin="0,15,0,10" />
 
-            <Button Text="Pick Photo from Gallery" Command="{Binding PickPhotoCommand}" />
-
-            <Image x:Name="PhotoPreview"
-                   HeightRequest="200"
-                   WidthRequest="200"
-                   Aspect="AspectFit"
-                   BackgroundColor="#E0E0E0"
-                   HorizontalOptions="Center"
-                   IsVisible="False" />
-            
-            <Button x:Name="CapturePhotoButton"
-                    Text="📸 Take Photo"
-                    BackgroundColor="#2196F3"
-                    TextColor="White"
-                    CornerRadius="8"
-                    Padding="20,12"
-                    FontSize="16"
-                    FontAttributes="Bold"
-                    Command="{Binding CapturePhotoCommand}" />
 
             <!-- Save Button -->
             <Button Text="💾 Save Wound"
